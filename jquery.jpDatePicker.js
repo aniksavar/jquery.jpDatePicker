@@ -16,6 +16,13 @@
 			,format     :'YYYY年MM月DD日(WW)'
 			,weekTitles :['日','月','火','水','木','金','土']
 			,weekClasses:['sun','mon','tue','wed','thu','fri','sat']
+			,isSmartPhone:function(){
+				var ua = navigator.userAgent;
+				if( ua.indexOf('iPhone') >0 ) return true;
+				if( ua.indexOf('iPod') >0 ) return true;
+				if( ua.indexOf('Android') >0 ) return true;
+				return false;
+			}
 		},arg);
 		if( opt.mondayStart ){
 		    opt.weekTitles.push( opt.weekTitles.splice(0,1)[0] );
@@ -28,58 +35,81 @@
 			this.old = parseYMD( target.value );
 			this.viewY = this.old.Y;
 			this.viewM = this.old.M;
-			this.width = 360;
-			this.height = 240;
 
-			this.$prev = $('<a class=prev><!--<span>&lt;&lt;</span>--></a>').css({
+			var $prev = $('<a class=prev></a>').css({
 				 display :'block'
 				,position:'absolute'
 				,left    : 0
 				,top     : 0
-				,height  : this.height
 			})
 			.click(function(){ self.prevMonth(); });
 
-			this.$next =$('<a class=next><!--<span>&gt;&gt;</span>--></a>').css({
+			var $next =$('<a class=next></a>').css({
 				 display :'block'
 				,position:'absolute'
 				,right   : 0
 				,top     : 0
-				,height  : this.height
 			})
 			.click(function(){ self.nextMonth(); });
 
 			var pos = $(target).position();
+			var mode = opt.isSmartPhone() ? 'sp' : 'pc';
+			switch( mode ){
+			case 'pc':
+				var width = 360;
+				var height = 240;
+				var left = pos.left;
+				var top = pos.top + $(target).outerHeight();
+				$prev.height( height );
+				$next.height( height );
+				break;
+			case 'sp':
+				var width = Math.min( $(window).width() ,$(window).height() );
+				var height = width;
+				var left = 0;
+				var top = pos.top + $(target).outerHeight();
+				this.calendarLeft = 0;
+				this.calendarWidth = width;
+				break;
+			}
+
 			this.$picker = $('<div></div>').css({
 				 position:'absolute'
-				,left    : pos.left
-				,top     : pos.top + $(target).outerHeight()
-				,width   : this.width
-				,height  : this.height
+				,left    : left
+				,top     : top
+				,width   : width
+				,height  : height
 			})
-			.addClass( plugName ).append( this.$prev ).append( this.$next )
+			.addClass( plugName ).addClass( mode ).append( $prev ).append( $next )
 			.appendTo( document.body );
+
+			switch( mode ){
+			case 'pc':
+				this.calendarLeft = $prev.width();
+				this.calendarWidth = width - $prev.width() - $next.width();
+				break;
+			}
 
 			setTimeout(function(){ self.initCalendar(); },0);
 		};
 		var pp = Picker.prototype;
 		pp.initCalendar = function(){
 			this.$calendar = this.newCalendar().css({
-				position:'absolute'
-				,left    : this.$prev.width()
+				 position:'absolute'
+				,left    : this.calendarLeft
 				,top     : 0
-				,width   : this.width - this.$prev.width() - this.$next.width()
+				,width   : this.calendarWidth
 			})
 			.prependTo( this.$picker );
 
-			this.datesHeight = this.height - this.$calendar.children('.title').height();
+			this.datesHeight = this.$picker.height() - this.$calendar.children('.title').height() - 2;
 			this.$calendar.children('.dates').height( this.datesHeight );
 
 			var self = this;
 			$(document).on('click.'+ plugName ,function(ev){
 				var off = self.$picker.offset();
-				off.right = off.left + self.width;
-				off.bottom = off.top + self.height;
+				off.right = off.left + self.$picker.outerWidth();
+				off.bottom = off.top + self.$picker.outerHeight();
 				if( ev.pageX < off.left || off.right < ev.pageX ||
 				    ev.pageY < off.top || off.bottom < ev.pageY
 				){
@@ -89,7 +119,7 @@
 		};
 		pp.destroy = function(){
 			this.$picker.remove();
-			this.$picker = this.$next = this.$prev = this.$calendar = null;
+			this.$picker = this.$calendar = null;
 			$(document).off('click.'+ plugName);
 		};
 		pp.prevMonth = function(){
@@ -100,19 +130,18 @@
 			var self = this;
 			var $newCalendar = this.newCalendar().css({
 				 position:'absolute'
-				,left    : this.$prev.width() - this.$calendar.width()
+				,left    : this.calendarLeft - this.calendarWidth
 				,top     : 0
-				,width   : this.$calendar.width()
+				,width   : this.calendarWidth
 			})
 			.insertAfter( this.$calendar )
-			.animate({ left: this.$prev.width() },{
+			.animate({ left: this.calendarLeft },{
 				complete:function(){
 					self.$calendar.remove();
 					self.$calendar = $newCalendar;
 				}
 				,duration:100
 			});
-			$newCalendar.children('.dates').height( this.datesHeight );
 		};
 		pp.nextMonth = function(){
 			if( ++this.viewM >12 ){
@@ -122,19 +151,18 @@
 			var self = this;
 			var $newCalendar = this.newCalendar().css({
 				 position:'absolute'
-				,left    : this.$prev.width() + this.$calendar.width()
+				,left    : this.calendarLeft + this.calendarWidth
 				,top     : 0
-				,width   : this.$calendar.width()
+				,width   : this.calendarWidth
 			})
 			.insertAfter( this.$calendar )
-			.animate({ left: this.$prev.width() },{
+			.animate({ left: this.calendarLeft },{
 				complete:function(){
 					self.$calendar.remove();
 					self.$calendar = $newCalendar;
 				}
 				,duration:100
 			});
-			$newCalendar.children('.dates').height( this.datesHeight );
 		};
 		pp.newCalendar = function(){
 			var html = '<div class=calendar>';
@@ -144,7 +172,8 @@
 			      + '<span class=month>'+ this.viewM +'</span>'+ opt.monthSuffix
 			      + '</div>';
 			// 曜日・日付テーブル
-			html += '<table class=dates>';
+			var height = this.datesHeight ? this.datesHeight +'px' : 'auto';
+			html += '<table class=dates style="height:'+ height +';">';
 			// 曜日行
 			html += '<tr>';
 			for( var i=0; i<opt.weekTitles.length; i++ ){
