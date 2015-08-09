@@ -1,7 +1,62 @@
+// vim:set ts=4 noexpandtab:vim modeline
 (function($){
 	'use strict';
+	// 日付から元号
+	var GENGO = [
+		 { name:'明治' ,begin:{ Y:1868 ,M:1  ,D:25 } }
+		,{ name:'大正' ,begin:{ Y:1912 ,M:7  ,D:30 } }
+		,{ name:'昭和' ,begin:{ Y:1926 ,M:12 ,D:25 } }
+		,{ name:'平成' ,begin:{ Y:1989 ,M:1  ,D:8 } }
+	];
+	function toGENGO( Y ,M ,D ){
+		for( var i=GENGO.length; i--; ){
+			var G = GENGO[i];
+			var dY = Y - G.begin.Y;
+			if( dY >0 ){
+				return [{ name:G.name ,Y:dY + 1 }];
+			}
+			else if( dY==0 ){
+				if( M ){
+					var dM = M - G.begin.M;
+					if( dM >0 ){
+						return [{ name:G.name ,Y:'元' }];
+					}
+					else if( dM==0 ){
+						if( D ){
+							if( G.begin.D <= D ) return [{ name:G.name ,Y:'元' }];
+							else{
+								if( i > 0 ){
+									var pG = GENGO[i-1];
+									return [{ name:pG.name ,Y:G.begin.Y - pG.begin.Y + 1 }];
+								}
+							}
+						}
+						else{
+							var pG = GENGO[i-1];
+							return [
+								 { name:pG.name ,Y:G.begin.Y - pG.begin.Y + 1 }
+								,{ name:G.name ,Y:'元' }
+							];
+						}
+					}
+				}
+				else{
+					if( i > 0 ){
+						var pG = GENGO[i-1];
+						return [
+							 { name:pG.name ,Y:G.begin.Y - pG.begin.Y + 1 }
+							,{ name:G.name ,Y:'元' }
+						];
+					}
+					else return [{ name:G.name ,Y:'元' }];
+				}
+			}
+		}
+		// 明治より前
+		return [];
+	}
 	function parseYMD( s ){
-		if( /^\s*(\d+)[^\d]+(\d+)[^\d]+(\d+)/.test(s) ){
+		if( /(\d+)\D+(\d+)\D+(\d+)/.test(s) ){
 			return { Y:parseInt(RegExp.$1) ,M:parseInt(RegExp.$2) ,D:parseInt(RegExp.$3) };
 		}
 		var d = new Date();
@@ -42,7 +97,7 @@
 				,left    : 0
 				,top     : 0
 			})
-			.click(function(){ self.prevMonth(); });
+			.click(function(){ self.prevClick(); });
 
 			var $next =$('<a class=next></a>').css({
 				 display :'block'
@@ -50,14 +105,14 @@
 				,right   : 0
 				,top     : 0
 			})
-			.click(function(){ self.nextMonth(); });
+			.click(function(){ self.nextClick(); });
 
 			var pos = $(target).position();
 			var mode = opt.isSmartPhone() ? 'sp' : 'pc';
 			switch( mode ){
 			case 'pc':
 				var width = 360;
-				var height = 240;
+				var height = 280;
 				var left = pos.left;
 				var top = pos.top + $(target).outerHeight();
 				$prev.height( height );
@@ -66,8 +121,8 @@
 			case 'sp':
 				var width = Math.min( $(window).width() ,$(window).height() );
 				var height = width;
-				var left = 0;
-				var top = pos.top + $(target).outerHeight();
+				var left = ($(window).width() - width) / 2;
+				var top = ($(window).height() - height) / 2;
 				this.calendarLeft = 0;
 				this.calendarWidth = width;
 				break;
@@ -102,8 +157,9 @@
 			})
 			.prependTo( this.$picker );
 
-			this.datesHeight = this.$picker.height() - this.$calendar.children('.title').height() - 2;
-			this.$calendar.children('.dates').height( this.datesHeight );
+			this.$calendar.children('.dates').height(
+				this.$picker.height() - this.$calendar.children('.title').outerHeight()
+			);
 
 			var self = this;
 			$(document).on('click.'+ plugName ,function(ev){
@@ -116,13 +172,16 @@
 					self.destroy();
 				}
 			});
+			$(document).on('click.'+ plugName ,'.'+ plugName +' .title .year' ,function(ev){ self.years(); });
+			$(window).on('resize.'+ plugName ,function(){ self.destroy(); });
 		};
 		pp.destroy = function(){
 			this.$picker.remove();
 			this.$picker = this.$calendar = null;
 			$(document).off('click.'+ plugName);
+			$(window).off('resize.'+ plugName);
 		};
-		pp.prevMonth = function(){
+		pp.prevClick = function(){
 			if( --this.viewM <1 ){
 				this.viewM = 12;
 				this.viewY--;
@@ -142,8 +201,11 @@
 				}
 				,duration:100
 			});
+			$newCalendar.children('.dates').height(
+				this.$picker.height() - $newCalendar.children('.title').outerHeight()
+			);
 		};
-		pp.nextMonth = function(){
+		pp.nextClick = function(){
 			if( ++this.viewM >12 ){
 			    this.viewM = 1;
 			    this.viewY++;
@@ -163,17 +225,28 @@
 				}
 				,duration:100
 			});
+			$newCalendar.children('.dates').height(
+				this.$picker.height() - $newCalendar.children('.title').outerHeight()
+			);
 		};
 		pp.newCalendar = function(){
 			var html = '<div class=calendar>';
+			var gengos = toGENGO( this.viewY ,this.viewM );
+			var gengo = [];
+			// 元号
+			for( var i=0; i<gengos.length; i++ ){
+				var G = gengos[i];
+				gengo.push(
+					'<span class=gengo>'+ G.name +'</span><span class=genyear>'+ G.Y +'</span>'
+				);
+			}
 			// 年月
 			html += '<div class=title>'
-			      + '<span class=year>'+ this.viewY +'</span>'+ opt.yearSuffix
+			      + '<div class=year>'+ gengo.join('/') +'<div class=AD>'+ this.viewY +'</div></div>'+ opt.yearSuffix
 			      + '<span class=month>'+ this.viewM +'</span>'+ opt.monthSuffix
 			      + '</div>';
 			// 曜日・日付テーブル
-			var height = this.datesHeight ? this.datesHeight +'px' : 'auto';
-			html += '<table class=dates style="height:'+ height +';">';
+			html += '<table class=dates>';
 			// 曜日行
 			html += '<tr>';
 			for( var i=0; i<opt.weekTitles.length; i++ ){
@@ -260,6 +333,57 @@
 				.replace('MM',('0'+ d.M).slice(-2))
 				.replace('DD',('0'+ d.D).slice(-2))
 				.replace('WW',weeks[w]);
+		};
+		pp.years = function(){
+			var W = this.$picker.width();
+			var html = '<div class=years style="width:'+ W +'px;">';
+			var beginY = this.viewY - 50;
+			var endY = this.viewY + 50;
+			var yearW = (W - 17) / 4;
+			for( var y=beginY; y<endY; y++ ){
+				var yClass = ( y==this.viewY ) ? 'year current' : 'year';
+				var gengos = toGENGO( y );
+				var gengo = [];
+				for( var i=0; i<gengos.length; i++ ){
+					var G = gengos[i];
+					gengo.push(
+						'<span class=gengo>'+ G.name +'</span><span class=genyear>'+ G.Y +'</span>'
+					);
+				}
+				html += '<div class="'+ yClass +'" style="width:'+ yearW +'px;">'+ gengo.join('/') +'<div class=AD>'+ y +'</div></div>';
+			}
+			html += '</div>';
+			var self = this;
+			var $years = $(html).on('click','.year',function(){
+			    var Y = $(this).children('.AD').text();
+				self.$picker.removeClass('years');
+				$years.remove();
+				self.yearClick( Y );
+			})
+			.appendTo( this.$picker.addClass('years') );
+
+			this.$picker.scrollTop( ($years.height() - this.$picker.height()) / 2 );
+		};
+		pp.yearClick = function( Y ){
+			this.viewY = parseInt( Y );
+			var self = this;
+			var $newCalendar = this.newCalendar().css({
+				 position:'absolute'
+				,left    : this.calendarLeft
+				,top     : -this.$calendar.height()
+				,width   : this.calendarWidth
+			})
+			.insertAfter( this.$calendar )
+			.animate({ top: 0 },{
+				complete:function(){
+					self.$calendar.remove();
+					self.$calendar = $newCalendar;
+				}
+				,duration:100
+			});
+			$newCalendar.children('.dates').height(
+				this.$picker.height() - $newCalendar.children('.title').outerHeight()
+			);
 		};
 		this.each(function(){
 			$(this).on('click.'+ plugName ,function(){ new Picker(this); });
