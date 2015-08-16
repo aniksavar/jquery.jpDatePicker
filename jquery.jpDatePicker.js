@@ -361,17 +361,22 @@
 			var beginY = this.viewY - 50;
 			var endY = this.viewY + 50;
 			var yearW = (W - 17) / 4;
+			var nowY = (new Date()).getFullYear();
 			for( var y=beginY; y<endY; y++ ){
-				var yClass = ( y==this.viewY ) ? 'year current' : 'year';
+				var yClass = ['year'];
 				var gengos = toGENGO( y );
 				var gengo = [];
+				if( y===this.viewY ) yClass.push('current');
+				if( y===nowY ) yClass.push('now');
 				for( var i=0; i<gengos.length; i++ ){
 					var G = gengos[i];
 					gengo.push(
 						'<span class=gengo>'+ G.name +'</span><span class=genyear>'+ G.Y +'</span>'
 					);
 				}
-				html += '<div class="'+ yClass +'" style="width:'+ yearW +'px;">'+ gengo.join('/') +'<div class=AD>'+ y +'</div></div>';
+				html += '<div class="'+ yClass.join(' ') +'" style="width:'+ yearW +'px;">'
+					  + gengo.join('/') +'<div class=AD>'+ y +'</div>'
+					  + '</div>';
 			}
 			html += '</div>';
 			var self = this;
@@ -388,12 +393,16 @@
 			this.$picker.scrollTop( ($years.height() - this.$picker.height()) / 2 );
 		};
 		pp.months = function(){
+			var nowM = (new Date()).getMonth() + 1;
 			var month = 1;
 			var html = '<table class=months>';
 			for( var row=4; row--; ){
 				html += '<tr>';
 				for( var col=3; col--; ){
-					html += '<td><big>'+ (month++) +'</big>'+ opt.monthSuffix +'</td>';
+					var mClass = [];
+					if( month===nowM ) mClass.push('now');
+					if( month===this.viewM ) mClass.push('current');
+					html += '<td class="'+ mClass.join(' ') +'"><big>'+ (month++) +'</big>'+ opt.monthSuffix +'</td>';
 				}
 				html += '</tr>';
 			}
