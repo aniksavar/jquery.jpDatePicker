@@ -424,7 +424,7 @@
 				self.$calendar = $newCalendar;
 				$months.fadeOut(100,function(){ $months.remove(); });
 			})
-			.height( this.$picker.height() ).appendTo( this.$picker );
+			.width( this.$picker.width() ).height( this.$picker.height() ).appendTo( this.$picker );
 		};
 		this.each(function(){
 			$(this).on('click.'+ plugName ,function(){ new Picker(this); });
