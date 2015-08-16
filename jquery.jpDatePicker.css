@@ -1,6 +1,6 @@
 @charset "utf-8";
 .jpDatePicker { background;#fff; color:#222; border:1px solid #aaa; box-sizing:content-box; overflow:hidden; font-family:Arial; }
-.jpDatePicker a { text-decoration:none; }
+.jpDatePicker a { text-decoration:none; cursor:pointer; }
 .jpDatePicker .prev,
 .jpDatePicker .next { background:#ccc; color:#ddd; text-align:center; font-weight:bold; }
 .jpDatePicker.pc .prev,
@@ -22,7 +22,7 @@
 .jpDatePicker.sp .prev:after { top:10px; right:36%; border-width:12px; border-right-width:24px; }
 .jpDatePicker.sp .next:after { top:10px; left:36%; border-width:12px; border-left-width:24px; }
 .jpDatePicker .prev:hover,
-.jpDatePicker .next:hover { background:#37a; color:#fff; text-decoration:none; cursor:pointer; }
+.jpDatePicker .next:hover { background:#37a; color:#fff; }
 .jpDatePicker .prev:hover:after { border-right-color:#fff; }
 .jpDatePicker .next:hover:after { border-left-color:#fff; }
 .jpDatePicker .prev:active,
