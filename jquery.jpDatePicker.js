@@ -108,7 +108,7 @@
 			})
 			.click(function(){ self.nextClick(); });
 
-			var pos = $(target).position();
+			var pos = $(target).offset();//position();
 			var mode = opt.isSmartPhone() ? 'sp' : 'pc';
 			switch( mode ){
 			case 'pc':
