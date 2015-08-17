@@ -1,5 +1,5 @@
 @charset "utf-8";
-.jpDatePicker { background;#fff; color:#222; border:1px solid #aaa; box-sizing:content-box; overflow:hidden; font-family:Arial; }
+.jpDatePicker { background;#fff; color:#222; border:1px solid #aaa; box-sizing:content-box; overflow:hidden; font-family:Arial; line-height:1; }
 .jpDatePicker a { text-decoration:none; cursor:pointer; }
 .jpDatePicker .prev,
 .jpDatePicker .next { background:#ccc; color:#ddd; text-align:center; font-weight:bold; }
@@ -27,12 +27,13 @@
 .jpDatePicker .next:hover:after { border-left-color:#fff; }
 .jpDatePicker .prev:active,
 .jpDatePicker .next:active { background:#59c; }
-.jpDatePicker .calendar .title { text-align:center; line-height:1; padding:3px 0 5px 0; color:#555; background:#fff; }
+.jpDatePicker .calendar .title { text-align:center; padding:3px 0 5px 0; color:#555; background:#fff; }
 .jpDatePicker .calendar .title .year { display:inline-block; padding:2px 8px 0 8px; margin:0 2px 0 0; cursor:pointer; text-align:center; border:1px solid #eee; border-radius:5px; }
-.jpDatePicker .calendar .title .year .AD { font-size:180%; font-weight:bold; }
+.jpDatePicker .calendar .title .year .AD { font-size:180%; font-weight:bold; color:#555; }
 .jpDatePicker .calendar .title .year .gengo { font-size:85%; color:#666; }
 .jpDatePicker .calendar .title .year .genyear { margin:0 2px; color:#777; font-weight:bold; }
 .jpDatePicker .calendar .title .year:hover { background:#37a; color:#fff; }
+.jpDatePicker .calendar .title .year:hover .AD,
 .jpDatePicker .calendar .title .year:hover .gengo,
 .jpDatePicker .calendar .title .year:hover .genyear { color:#fff; }
 .jpDatePicker .calendar .title .year:active { background:#59c; color:#fff; }
@@ -53,8 +54,8 @@
 .jpDatePicker .calendar .dates td:active { background:#fb2; color:#fff; }
 .jpDatePicker.years { overflow-y:scroll; }
 .jpDatePicker .years { background:#fff; text-align:center; position:absolute; left:0; top:0; }
-.jpDatePicker .years .year { float:left; cursor:pointer; border:1px solid #ccc; border-top-width:0; border-left-width:0; white-space:nowrap; padding:4px 0; }
-.jpDatePicker .years .year .AD { font-size:160%; font-weight:bold; color:#555; }
+.jpDatePicker .years .year { float:left; cursor:pointer; border:1px solid #ccc; border-top-width:0; border-left-width:0; white-space:nowrap; padding:6px 0; }
+.jpDatePicker .years .year .AD { font-size:160%; font-weight:bold; color:#555; margin:4px 0 0 0; }
 .jpDatePicker .years .year .gengo { font-size:80%; color:#666; }
 .jpDatePicker .years .year .genyear { font-size:90%; color:#777; font-weight:bold; }
 .jpDatePicker .years .year.now { background:#ff3; }
