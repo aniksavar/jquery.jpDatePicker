@@ -39,7 +39,7 @@
 .jpDatePicker .calendar .title .year:active { background:#59c; color:#fff; }
 .jpDatePicker .calendar .title .year:active .gengo,
 .jpDatePicker .calendar .title .year:active .genyear { color:#fff; }
-.jpDatePicker .calendar .title .month { font-size:180%; font-weight:bold; display:inline-block; padding:5px 10px 0 10px; cursor:pointer; border:1px solid #eee; border-radius:5px; }
+.jpDatePicker .calendar .title .month { font-size:180%; font-weight:bold; display:inline-block; padding:5px 10px 0 10px; cursor:pointer; border:1px solid #eee; border-radius:5px; color:#555; }
 .jpDatePicker .calendar .title .month:hover { background:#37a; color:#fff; }
 .jpDatePicker .calendar .title .month:active { background:#59c; color:#fff; }
 .jpDatePicker .calendar .dates { width:100%; border-collapse:collapse; }
