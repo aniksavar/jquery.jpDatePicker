@@ -63,7 +63,9 @@
 		var d = new Date();
 		return { Y:d.getFullYear() ,M:d.getMonth() + 1 ,D:d.getDate() };
 	}
+	// jQueryプラグイン
 	$.fn.jpDatePicker = function( arg ){
+
 		var plugName = 'jpDatePicker';
 		var opt = $.extend(true,{
 			 mondayStart: false
@@ -80,178 +82,106 @@
 				return false;
 			}
 		},arg);
+
 		if( opt.mondayStart ){
 		    opt.weekTitles.push( opt.weekTitles.splice(0,1)[0] );
 		    opt.weekClasses.push( opt.weekClasses.splice(0,1)[0] );
 		}
+
+		// 年月日文字列作成
+		var formatYMD = function( d ){
+			var weeks = ['日','月','火','水','木','金','土'];
+			var w = (new Date( d.Y ,d.M - 1 ,d.D )).getDay();
+			return opt.format
+				.replace('YYYY',d.Y)
+				.replace('MM',('0'+ d.M).slice(-2))
+				.replace('DD',('0'+ d.D).slice(-2))
+				.replace('WW',weeks[w]);
+		};
+
 		var Picker = function( target ){
 			var self = this;
 
-			this.target = target;
-			this.old = parseYMD( target.value );
-			this.viewY = this.old.Y;
-			this.viewM = this.old.M;
-
-			var $prev = $('<a class=prev></a>').css({
-				 display :'block'
-				,position:'absolute'
-				,left    : 0
-				,top     : 0
-			})
-			.click(function(){ self.prevClick(); });
-
-			var $next =$('<a class=next></a>').css({
-				 display :'block'
-				,position:'absolute'
-				,right   : 0
-				,top     : 0
-			})
-			.click(function(){ self.nextClick(); });
+			self.target = target;
+			self.old = parseYMD( target.value );
+			self.viewY = self.old.Y;
+			self.viewM = self.old.M;
 
 			var pos = $(target).offset();//position();
 			var mode = opt.isSmartPhone() ? 'sp' : 'pc';
 			switch( mode ){
 			case 'pc':
-				var width = 360;
-				var height = 280;
+				self.width = 360;
+				self.height = 280;
 				var left = pos.left;
 				var top = pos.top + $(target).outerHeight();
-				$prev.height( height );
-				$next.height( height );
 				break;
 			case 'sp':
-				var width = Math.min( $(window).width() ,$(window).height() );
-				var height = width;
-				var left = ($(window).width() - width) / 2;
-				var top = ($(window).height() - height) / 2;
-				this.calendarLeft = 0;
-				this.calendarWidth = width;
+				self.width = Math.min( $(window).width() ,$(window).height() );
+				self.height = self.width;
+				var left = ($(window).width() - self.width) / 2;
+				var top = ($(window).height() - self.height) / 2;
 				break;
 			}
 
-			this.$picker = $('<div></div>').css({
-				 position:'absolute'
-				,left    : left
-				,top     : top
-				,width   : width
-				,height  : height
+			var $prev = $('<a class=prev></a>').click(function(){ prev.call(self); });
+			var $next = $('<a class=next></a>').click(function(){ next.call(self); });
+
+			self.$picker = $('<div></div>').css({
+				 left  : left
+				,top   : top
+				,width : self.width
+				,height: self.height
 			})
 			.addClass( plugName ).addClass( mode ).append( $prev ).append( $next )
 			.appendTo( document.body );
 
-			switch( mode ){
-			case 'pc':
-				this.calendarLeft = $prev.width();
-				this.calendarWidth = width - $prev.width() - $next.width();
-				break;
-			}
+			setTimeout(function(){
+				self.$month1 = month1.new$.call(self).prependTo( self.$picker );
+				self.$month1.children('.dates').height(
+					self.height - self.$month1.children('.title').outerHeight()
+				);
+				prev = month1.prev;
+				next = month1.next;
 
-			setTimeout(function(){ self.initCalendar(); },0);
+				$(document)
+					.on('click.'+ plugName ,function(ev){
+						var off = self.$picker.offset();
+						off.right = off.left + self.$picker.outerWidth();
+						off.bottom = off.top + self.$picker.outerHeight();
+						if( ev.pageX < off.left || off.right < ev.pageX ||
+							ev.pageY < off.top || off.bottom < ev.pageY
+						){
+							destroy.call( self );
+						}
+					})
+					.on('click.'+ plugName ,'.'+ plugName +' .month1 .title .year',function(ev){
+						years.call(self);
+					})
+					.on('click.'+ plugName ,'.'+ plugName +' .month1 .title .month',function(ev){
+						year1.show.call(self);
+					})
+					.on('selectstart.'+ plugName ,'.'+ plugName ,function(ev){
+						return false; // テキスト選択キャンセル
+					});
+
+				$(window).on('resize.'+ plugName ,function(){ destroy.call( self ); });
+			},0);
 		};
-		var pp = Picker.prototype;
-		pp.initCalendar = function(){
-			this.$calendar = this.newCalendar().css({
-				 position:'absolute'
-				,left    : this.calendarLeft
-				,top     : 0
-				,width   : this.calendarWidth
-			})
-			.prependTo( this.$picker );
 
-			this.$calendar.children('.dates').height(
-				this.$picker.height() - this.$calendar.children('.title').outerHeight()
-			);
+		var prev = function(){};
+		var next = function(){};
 
-			var self = this;
-			$(document)
-				.on('click.'+ plugName ,function(ev){
-					var off = self.$picker.offset();
-					off.right = off.left + self.$picker.outerWidth();
-					off.bottom = off.top + self.$picker.outerHeight();
-					if( ev.pageX < off.left || off.right < ev.pageX ||
-						ev.pageY < off.top || off.bottom < ev.pageY
-					){
-						self.destroy();
-					}
-				})
-				.on('click.'+ plugName ,'.'+ plugName +' .title .year',function(ev){
-					self.years();
-				})
-				.on('click.'+ plugName ,'.'+ plugName +' .title .month',function(ev){
-					self.months();
-				});
-			$(window).on('resize.'+ plugName ,function(){ self.destroy(); });
-		};
-		pp.destroy = function(){
+		var destroy = function(){
 			this.$picker.remove();
-			this.$picker = this.$calendar = null;
-			$(document).off('click.'+ plugName);
+			this.$picker = this.$month1 = this.$year1 = null;
+			$(document).off('click.'+ plugName).off('selectstart.'+ plugName);
 			$(window).off('resize.'+ plugName);
 		};
-		pp.prevClick = function(){
-			if( --this.viewM <1 ){
-				this.viewM = 12;
-				this.viewY--;
-			}
-			var self = this;
-			var $newCalendar = this.newCalendar().css({
-				 position:'absolute'
-				,left    : this.calendarLeft - this.calendarWidth
-				,top     : 0
-				,width   : this.calendarWidth
-			})
-			.insertAfter( this.$calendar )
-			.animate({
-				left: this.calendarLeft
-			},{
-				complete:function(){
-					self.$calendar.remove();
-					self.$calendar = $newCalendar;
-				}
-				,duration:100
-			});
-			this.$calendar.animate({
-				left: this.calendarLeft + this.calendarWidth
-			},{
-				duration:100
-			});
-			$newCalendar.children('.dates').height(
-				this.$picker.height() - $newCalendar.children('.title').outerHeight()
-			);
-		};
-		pp.nextClick = function(){
-			if( ++this.viewM >12 ){
-			    this.viewM = 1;
-			    this.viewY++;
-			}
-			var self = this;
-			var $newCalendar = this.newCalendar().css({
-				 position:'absolute'
-				,left    : this.calendarLeft + this.calendarWidth
-				,top     : 0
-				,width   : this.calendarWidth
-			})
-			.insertAfter( this.$calendar )
-			.animate({
-				left: this.calendarLeft
-			},{
-				complete:function(){
-					self.$calendar.remove();
-					self.$calendar = $newCalendar;
-				}
-				,duration:100
-			});
-			this.$calendar.animate({
-				left: this.calendarLeft - this.calendarWidth
-			},{
-				duration:100
-			});
-			$newCalendar.children('.dates').height(
-				this.$picker.height() - $newCalendar.children('.title').outerHeight()
-			);
-		};
-		pp.newCalendar = function(){
-			var html = '<div class=calendar>';
+
+		var month1 = {};
+		month1.new$ = function(){
+			var html = '<div class=month1>';
 			var gengos = toGENGO( this.viewY ,this.viewM );
 			var gengo = [];
 			// 元号
@@ -316,7 +246,6 @@
 			var now = new Date();
 			var today = { Y:now.getFullYear() ,M:now.getMonth()+1 ,D:now.getDate() };
 			// HTML生成
-			var self = this;
 			for( var i=0; i<dates.length; ){
 				html += '<tr>';
 				for( var w=0; w<7; w++, i++ ){
@@ -340,27 +269,113 @@
 			}
 			html += '</table>';
 			html += '</div>';
-			return $(html).on('click','td',function(){
+
+			var self = this;
+			return $(html)
+			.on('click','td',function(){
 				var d = parseYMD( $(this).data('ymd') );
-				self.target.value = self.format( d );
-				self.destroy();
-			});
+				self.target.value = formatYMD( d );
+				destroy.call(self);
+			})
+			.width( this.width );
 		};
-		pp.format = function( d ){
-			var weeks = ['日','月','火','水','木','金','土'];
-			var w = (new Date( d.Y ,d.M - 1 ,d.D )).getDay();
-			return opt.format
-				.replace('YYYY',d.Y)
-				.replace('MM',('0'+ d.M).slice(-2))
-				.replace('DD',('0'+ d.D).slice(-2))
-				.replace('WW',weeks[w]);
+		month1.prev = function(){
+			if( --this.viewM <1 ){
+				this.viewM = 12;
+				this.viewY--;
+			}
+			month1.renew.call(this);
 		};
-		pp.years = function(){
-			var W = this.$picker.width();
-			var html = '<div class=years style="width:'+ W +'px;">';
+		month1.next = function(){
+			if( ++this.viewM >12 ){
+			    this.viewM = 1;
+			    this.viewY++;
+			}
+			month1.renew.call(this);
+		};
+		month1.renew = function(){
+			var $month1 = month1.new$.call(this).insertAfter( this.$month1 );
+			$month1.children('.dates').height(
+				this.height - $month1.children('.title').outerHeight()
+			);
+			this.$month1.remove();
+			this.$month1 = $month1;
+		};
+
+		var year1 = {};
+		year1.new$ = function(){
+			var html = '<table class=year1>';
+			var gengos = toGENGO( this.viewY );
+			var gengo = [];
+			// 元号
+			for( var i=0; i<gengos.length; i++ ){
+				var G = gengos[i];
+				gengo.push(
+					'<span class=gengo>'+ G.name +'</span><span class=genyear>'+ G.Y +'</span>'
+				);
+			}
+			// 年
+			html += '<tr><th colspan=3>'
+				  + '<a class=year>'
+				  + gengo.join('/') +'<div><span class=AD>'+ this.viewY +'</span>'+ opt.yearSuffix +'</div>'
+				  +'</a>'
+				  + '</th></tr>';
+			// 月
+			var now = new Date();
+			var nowY = ( this.viewY === now.getFullYear() ) ? true : false;
+			var nowM = now.getMonth() + 1;
+			var month = 1;
+			for( var row=4; row--; ){
+				html += '<tr>';
+				for( var col=3; col--; ){
+					var mClass = [];
+					if( nowY && month===nowM ) mClass.push('now');
+					if( month===this.viewM ) mClass.push('current');
+					html += '<td class="'+ mClass.join(' ') +'"><big>'+ (month++) +'</big>'+ opt.monthSuffix +'</td>';
+				}
+				html += '</tr>';
+			}
+			html += '</table>';
+
+			var self = this;
+			return $(html).on('click','.year',function(){
+				years.call(self);
+				year1.hide.call(self);
+			})
+			.on('click','td',function(){
+				self.viewM = parseInt( $(this).children('big').text() );
+				month1.renew.call(self);
+				year1.hide.call(self);
+			})
+			.width( this.width ).height( this.height );
+		};
+		year1.hide = function(){
+			this.$year1.remove();
+			this.$year1 = null;
+			prev = month1.prev;
+			next = month1.next;
+		};
+		year1.show = function(){
+			this.$year1 = year1.new$.call(this).insertAfter( this.$month1 );
+			prev = year1.prev;
+			next = year1.next;
+		};
+		year1.prev = function(){
+			this.viewY--;
+			this.$year1.remove();
+			this.$year1 = year1.new$.call(this).insertAfter( this.$month1 );
+		};
+		year1.next = function(){
+			this.viewY++;
+			this.$year1.remove();
+			this.$year1 = year1.new$.call(this).insertAfter( this.$month1 );
+		};
+
+		var years = function(){
+			var html = '<div class=years style="width:'+ this.width +'px;">';
 			var beginY = this.viewY - 50;
 			var endY = this.viewY + 50;
-			var yearW = (W - 17) / 4;
+			var yearW = (this.width - 17) / 4;
 			var nowY = (new Date()).getFullYear();
 			for( var y=beginY; y<endY; y++ ){
 				var yClass = ['year'];
@@ -382,50 +397,15 @@
 			var self = this;
 			var $years = $(html).on('click','.year',function(){
 				self.viewY = parseInt( $(this).children('.AD').text() );
-				self.months();
-				$years.fadeOut(100,function(){
-					$years.remove();
-					self.$picker.removeClass('years');
-				});
+				year1.show.call(self);
+				$years.remove();
+				self.$picker.removeClass('years');
 			})
 			.appendTo( this.$picker.addClass('years') );
 
-			this.$picker.scrollTop( ($years.height() - this.$picker.height()) / 2 );
+			this.$picker.scrollTop( ($years.height() - this.height) / 2 );
 		};
-		pp.months = function(){
-			var nowM = (new Date()).getMonth() + 1;
-			var month = 1;
-			var html = '<table class=months>';
-			for( var row=4; row--; ){
-				html += '<tr>';
-				for( var col=3; col--; ){
-					var mClass = [];
-					if( month===nowM ) mClass.push('now');
-					if( month===this.viewM ) mClass.push('current');
-					html += '<td class="'+ mClass.join(' ') +'"><big>'+ (month++) +'</big>'+ opt.monthSuffix +'</td>';
-				}
-				html += '</tr>';
-			}
-			html += '</table>';
-			var self = this;
-			var $months = $(html).on('click','td',function(){
-				self.viewM = parseInt( $(this).children('big').text() );
-				var $newCalendar = self.newCalendar().css({
-					 position:'absolute'
-					,left    : self.calendarLeft
-					,top     : 0
-					,width   : self.calendarWidth
-				})
-				.insertAfter( self.$calendar );
-				$newCalendar.children('.dates').height(
-					self.$picker.height() - $newCalendar.children('.title').outerHeight()
-				);
-				self.$calendar.remove();
-				self.$calendar = $newCalendar;
-				$months.fadeOut(100,function(){ $months.remove(); });
-			})
-			.width( this.$picker.width() ).height( this.$picker.height() ).appendTo( this.$picker );
-		};
+
 		this.each(function(){
 			$(this).on('click.'+ plugName ,function(){ new Picker(this); });
 		});
