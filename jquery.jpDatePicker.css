@@ -74,7 +74,7 @@
 .jpDatePicker .month1 .dates td:active { background:#fb2; color:#fff; }
 
 .jpDatePicker .year1 { background:#fff; border-collapse:collapse; position:absolute; left:-1px; top:0; }
-.jpDatePicker .year1 th { height:18%; cursor:pointer; font-weight:normal; padding:0; }
+.jpDatePicker .year1 th { height:18%; cursor:pointer; font-weight:normal; padding:0; text-align:center; }
 .jpDatePicker .year1 th .year { display:inline-block; padding:5px 15px 3px 0; }
 .jpDatePicker .year1 th .AD { font-size:180%; font-weight:bold; margin:0 5px 0 20px; }
 .jpDatePicker .year1 th .gengo { color:#666; font-size:85%; margin:0 2px; }
