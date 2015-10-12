@@ -67,6 +67,7 @@
 .jpDatePicker .month1 .dates td { text-align:center; font-weight:normal; font-size:110%; background:#fff; border:1px solid #eee; }
 .jpDatePicker .month1 .dates td.sat { color:#35f; font-weight:bold; }
 .jpDatePicker .month1 .dates td.sun { color:#f35; font-weight:bold; }
+.jpDatePicker .month1 .dates td.holiday { color:#f35; font-weight:bold; }
 .jpDatePicker .month1 .dates td.today { background:#ff0; }
 .jpDatePicker .month1 .dates td.current { background:#f90; color:#fff; }
 .jpDatePicker .month1 .dates td.otherMonth { color:#ccc; font-weight:normal; }
