@@ -2,13 +2,13 @@
 (function($){
 	'use strict';
 	// 日付から元号
-	var GENGO = [
-		 { name:'明治' ,begin:{ Y:1868 ,M:1  ,D:25 } }
-		,{ name:'大正' ,begin:{ Y:1912 ,M:7  ,D:30 } }
-		,{ name:'昭和' ,begin:{ Y:1926 ,M:12 ,D:25 } }
-		,{ name:'平成' ,begin:{ Y:1989 ,M:1  ,D:8 } }
-	];
 	function toGENGO( Y ,M ,D ){
+		var GENGO = [
+			{ name:'明治' ,begin:{ Y:1868 ,M:1  ,D:25 } }
+			,{ name:'大正' ,begin:{ Y:1912 ,M:7  ,D:30 } }
+			,{ name:'昭和' ,begin:{ Y:1926 ,M:12 ,D:25 } }
+			,{ name:'平成' ,begin:{ Y:1989 ,M:1  ,D:8 } }
+		];
 		for( var i=GENGO.length; i--; ){
 			var G = GENGO[i];
 			var dY = Y - G.begin.Y;
@@ -63,6 +63,16 @@
 		var d = new Date();
 		return { Y:d.getFullYear() ,M:d.getMonth() + 1 ,D:d.getDate() };
 	}
+	// 年月日文字列作成
+	var formatYMD = function( d ){
+		var weeks = ['日','月','火','水','木','金','土'];
+		var w = (new Date( d.Y ,d.M - 1 ,d.D )).getDay();
+		return opt.format
+			.replace('YYYY',d.Y)
+			.replace('MM',('0'+ d.M).slice(-2))
+			.replace('DD',('0'+ d.D).slice(-2))
+			.replace('WW',weeks[w]);
+	};
 	// jQueryプラグイン
 	$.fn.jpDatePicker = function( arg ){
 
@@ -88,78 +98,68 @@
 		    opt.weekClasses.push( opt.weekClasses.splice(0,1)[0] );
 		}
 
-		// 年月日文字列作成
-		var formatYMD = function( d ){
-			var weeks = ['日','月','火','水','木','金','土'];
-			var w = (new Date( d.Y ,d.M - 1 ,d.D )).getDay();
-			return opt.format
-				.replace('YYYY',d.Y)
-				.replace('MM',('0'+ d.M).slice(-2))
-				.replace('DD',('0'+ d.D).slice(-2))
-				.replace('WW',weeks[w]);
-		};
-
 		var Picker = function( target ){
-			var self = this;
+			var my = this;
 
-			self.target = target;
-			self.old = parseYMD( target.value );
-			self.viewY = self.old.Y;
-			self.viewM = self.old.M;
+			my.target = target;
+			my.old = parseYMD( target.value );
+			my.viewY = my.old.Y;
+			my.viewM = my.old.M;
 
 			var pos = $(target).offset();//position();
 			var mode = opt.isSmartPhone() ? 'sp' : 'pc';
 			switch( mode ){
 			case 'pc':
-				self.width = 360;
-				self.height = 280;
+				my.width = 360;
+				my.height = 280;
 				var left = pos.left;
 				var top = pos.top + $(target).outerHeight();
 				break;
 			case 'sp':
-				self.width = Math.min( $(window).width() ,$(window).height() );
-				self.height = self.width;
-				var left = ($(window).width() - self.width) / 2;
-				var top = ($(window).height() - self.height) / 2;
+				my.width = Math.min( $(window).width() ,$(window).height() );
+				my.height = my.width;
+				var left = ($(window).width() - my.width) / 2;
+				var top = ($(window).height() - my.height) / 2;
 				break;
 			}
 
-			var $prev = $('<a class=prev></a>').click(function(){ prev.call(self); });
-			var $next = $('<a class=next></a>').click(function(){ next.call(self); });
+			var $prev = $('<a class=prev></a>').click(function(){ prev.call(my); });
+			var $next = $('<a class=next></a>').click(function(){ next.call(my); });
 
-			self.$picker = $('<div></div>').css({
+			my.$picker = $('<div></div>').css({
 				 left  : left
 				,top   : top
-				,width : self.width
-				,height: self.height
+				,width : my.width
+				,height: my.height
 			})
 			.addClass( plugName ).addClass( mode ).append( $prev ).append( $next )
 			.appendTo( document.body );
 
 			setTimeout(function(){
-				self.$month1 = month1.new$.call(self).prependTo( self.$picker );
-				self.$month1.children('.dates').height(
-					self.height - self.$month1.children('.title').outerHeight()
+				my.$month1 = month1.new$.call(my).prependTo( my.$picker );
+				my.$month1.children('.dates').height(
+					my.height - my.$month1.children('.title').outerHeight()
 				);
 				prev = month1.prev;
 				next = month1.next;
 
 				$(document)
 					.on('click.'+ plugName ,function(ev){
-						var off = self.$picker.offset();
-						off.right = off.left + self.$picker.outerWidth();
-						off.bottom = off.top + self.$picker.outerHeight();
+						// ピッカー範囲外クリックで消す
+						var off = my.$picker.offset();
+						off.right = off.left + my.$picker.outerWidth();
+						off.bottom = off.top + my.$picker.outerHeight();
 						if( ev.pageX < off.left || off.right < ev.pageX ||
 							ev.pageY < off.top || off.bottom < ev.pageY
 						){
-							destroy.call( self );
+							destroy.call( my );
 						}
 					})
 					.on('click.'+ plugName ,'.'+ plugName +' .month1 .title .year',function(ev){
-						years.call(self);
+						years.call(my);
 					})
 					.on('click.'+ plugName ,'.'+ plugName +' .month1 .title .month',function(ev){
-						year1.show.call(self);
+						year1.show.call(my);
 					})
 					.on('selectstart.'+ plugName ,'.'+ plugName ,function(ev){
 						return false; // テキスト選択キャンセル
@@ -167,7 +167,7 @@
 
 				// TODO:スマホだと<input>にフォーカスしたらキーボードが出てきて画面が小さくなり
 				// そのタイミングでカレンダーが消えてしまう。resizeで消さずに移動で済ますよう修正。
-				$(window).on('resize.'+ plugName ,function(){ destroy.call( self ); });
+				//$(window).on('resize.'+ plugName ,function(){ destroy.call( my ); });
 			},0);
 		};
 
@@ -277,12 +277,11 @@
 			html += '</table>';
 			html += '</div>';
 
-			var self = this;
-			return $(html)
-			.on('click','td',function(){
+			var my = this;
+			return $(html).on('click','td',function(){
 				var d = parseYMD( $(this).data('ymd') );
-				self.target.value = formatYMD( d );
-				destroy.call(self);
+				my.target.value = formatYMD( d );
+				destroy.call(my);
 			})
 			.width( this.width );
 		};
@@ -344,15 +343,15 @@
 			}
 			html += '</table>';
 
-			var self = this;
+			var my = this;
 			return $(html).on('click','.year',function(){
-				years.call(self);
-				year1.hide.call(self);
+				years.call(my);
+				year1.hide.call(my);
 			})
 			.on('click','td',function(){
-				self.viewM = parseInt( $(this).children('big').text() );
-				month1.renew.call(self);
-				year1.hide.call(self);
+				my.viewM = parseInt( $(this).children('big').text() );
+				month1.renew.call(my);
+				year1.hide.call(my);
 			})
 			.width( this.width ).height( this.height );
 		};
@@ -401,12 +400,12 @@
 					  + '</div>';
 			}
 			html += '</div>';
-			var self = this;
+			var my = this;
 			var $years = $(html).on('click','.year',function(){
-				self.viewY = parseInt( $(this).children('.AD').text() );
-				year1.show.call(self);
+				my.viewY = parseInt( $(this).children('.AD').text() );
+				year1.show.call(my);
 				$years.remove();
-				self.$picker.removeClass('years');
+				my.$picker.removeClass('years');
 			})
 			.appendTo( this.$picker.addClass('years') );
 
@@ -414,8 +413,6 @@
 		};
 
 		this.each(function(){
-			// TODO:ピッカー表示したまま<input>クリックすると初期化されてしまう。
-			// すでに表示していたら何もしないよう修正。
 			$(this).on('click.'+ plugName ,function(){ new Picker(this); });
 		});
 		return this;
