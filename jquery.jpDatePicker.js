@@ -63,16 +63,6 @@
 		var d = new Date();
 		return { Y:d.getFullYear() ,M:d.getMonth() + 1 ,D:d.getDate() };
 	}
-	// 年月日文字列作成
-	var formatYMD = function( d ){
-		var weeks = ['日','月','火','水','木','金','土'];
-		var w = (new Date( d.Y ,d.M - 1 ,d.D )).getDay();
-		return opt.format
-			.replace('YYYY',d.Y)
-			.replace('MM',('0'+ d.M).slice(-2))
-			.replace('DD',('0'+ d.D).slice(-2))
-			.replace('WW',weeks[w]);
-	};
 	// jQueryプラグイン
 	$.fn.jpDatePicker = function( arg ){
 
@@ -97,6 +87,17 @@
 		    opt.weekTitles.push( opt.weekTitles.splice(0,1)[0] );
 		    opt.weekClasses.push( opt.weekClasses.splice(0,1)[0] );
 		}
+
+		// 年月日文字列作成
+		var formatYMD = function( d ){
+			var weeks = ['日','月','火','水','木','金','土'];
+			var w = (new Date( d.Y ,d.M - 1 ,d.D )).getDay();
+			return opt.format
+				.replace('YYYY',d.Y)
+				.replace('MM',('0'+ d.M).slice(-2))
+				.replace('DD',('0'+ d.D).slice(-2))
+				.replace('WW',weeks[w]);
+		};
 
 		var Picker = function( target ){
 			var my = this;
