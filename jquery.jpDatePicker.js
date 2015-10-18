@@ -108,20 +108,18 @@
 			my.viewM = my.old.M;
 
 			var pos = $(target).offset();//position();
+			var top = pos.top + $(target).outerHeight();
 			var mode = opt.isSmartPhone() ? 'sp' : 'pc';
 			switch( mode ){
 			case 'pc':
 				my.width = 360;
 				my.height = 280;
 				var left = pos.left;
-				var top = pos.top + $(target).outerHeight();
 			break;
 			case 'sp':
 				my.width = Math.min( $(window).width() ,$(window).height() );
 				my.height = my.width;
 				var left = $(window).scrollLeft() + ($(window).width() - my.width) / 2;
-				var top = $(window).scrollTop() + ($(window).height() - my.height) / 2;
-				if( top <0 ) top = 0;
 			break;
 			}
 
