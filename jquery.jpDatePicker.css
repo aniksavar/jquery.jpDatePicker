@@ -37,7 +37,9 @@
 .jpDatePicker .prev:hover:after { border-right-color:#fff; }
 .jpDatePicker .next:hover:after { border-left-color:#fff; }
 .jpDatePicker .prev:active,
-.jpDatePicker .next:active { background:#59c; }
+.jpDatePicker .next:active,
+.jpDatePicker .prev.active,
+.jpDatePicker .next.active { background:#59c; }
 
 .jpDatePicker .month1 { position:absolute; left:0; top:0; }
 .jpDatePicker .month1 .title { text-align:center; padding:3px 0 5px 0; background:#fff; }
@@ -52,16 +54,20 @@
 .jpDatePicker .month1 .title .year:hover .AD,
 .jpDatePicker .month1 .title .year:hover .gengo,
 .jpDatePicker .month1 .title .year:hover .genyear { color:#fff; }
-.jpDatePicker .month1 .title .year:active { background:#59c; color:#fff; }
+.jpDatePicker .month1 .title .year:active,
+.jpDatePicker .month1 .title .year.active { background:#59c; color:#fff; }
 .jpDatePicker .month1 .title .year:active .gengo,
-.jpDatePicker .month1 .title .year:active .genyear { color:#fff; }
+.jpDatePicker .month1 .title .year:active .genyear,
+.jpDatePicker .month1 .title .year.active .gengo,
+.jpDatePicker .month1 .title .year.active .genyear { color:#fff; }
 .jpDatePicker .month1 .title .month {
 	font-size:180%; font-weight:bold;
 	display:inline-block; padding:5px 10px 0 10px; cursor:pointer;
 	border:1px solid #eee; border-radius:5px;
 }
 .jpDatePicker .month1 .title .month:hover { background:#37a; color:#fff; }
-.jpDatePicker .month1 .title .month:active { background:#59c; color:#fff; }
+.jpDatePicker .month1 .title .month:active,
+.jpDatePicker .month1 .title .month.active { background:#59c; color:#fff; }
 .jpDatePicker .month1 .dates { width:100%; border-collapse:collapse; position:relative; left:-1px; }
 .jpDatePicker .month1 .dates th { text-align:center; font-weight:normal; font-size:85%; height:20px; background:#fff; }
 .jpDatePicker .month1 .dates td { text-align:center; font-weight:normal; font-size:110%; background:#fff; border:1px solid #eee; }
@@ -72,7 +78,8 @@
 .jpDatePicker .month1 .dates td.current { background:#f90; color:#fff; }
 .jpDatePicker .month1 .dates td.otherMonth { color:#ccc; font-weight:normal; }
 .jpDatePicker .month1 .dates td:hover { background:#f90; color:#fff; cursor:pointer; }
-.jpDatePicker .month1 .dates td:active { background:#fb2; color:#fff; }
+.jpDatePicker .month1 .dates td:active,
+.jpDatePicker .month1 .dates td.active { background:#fb2; color:#fff; }
 
 .jpDatePicker .year1 { background:#fff; border-collapse:collapse; position:absolute; left:-1px; top:0; }
 .jpDatePicker .year1 th { height:18%; cursor:pointer; font-weight:normal; padding:0; text-align:center; }
@@ -84,9 +91,12 @@
 .jpDatePicker .year1 th .year:hover .AD,
 .jpDatePicker .year1 th .year:hover .gengo,
 .jpDatePicker .year1 th .year:hover .genyear { color:#fff; }
-.jpDatePicker .year1 th .year:active { background:#59c; color:#fff; }
+.jpDatePicker .year1 th .year:active,
+.jpDatePicker .year1 th .year.active { background:#59c; color:#fff; }
 .jpDatePicker .year1 th .year:active .gengo,
-.jpDatePicker .year1 th .year:active .genyear { color:#fff; }
+.jpDatePicker .year1 th .year:active .genyear,
+.jpDatePicker .year1 th .year.active .gengo,
+.jpDatePicker .year1 th .year.active .genyear { color:#fff; }
 .jpDatePicker .year1 td { border:1px solid #ddd; text-align:center; vertical-align:middle; cursor:pointer; }
 .jpDatePicker .year1 td.now { background:#ff3; }
 .jpDatePicker .year1 td.current { background:#999; color:#fff; }
@@ -94,8 +104,10 @@
 .jpDatePicker .year1 td.current big { color:#fff; }
 .jpDatePicker .year1 td:hover { background:#37a; color:#fff; }
 .jpDatePicker .year1 td:hover big { color:#fff; }
-.jpDatePicker .year1 td:active { background:#59c; color:#fff; }
-.jpDatePicker .year1 td:active big { color:#fff; }
+.jpDatePicker .year1 td:active,
+.jpDatePicker .year1 td.active { background:#59c; color:#fff; }
+.jpDatePicker .year1 td:active big,
+.jpDatePicker .year1 td.active big { color:#fff; }
 
 .jpDatePicker.years { overflow-y:scroll; }
 .jpDatePicker .years { background:#fff; text-align:center; position:absolute; left:0; top:0; }
@@ -115,7 +127,11 @@
 .jpDatePicker .years .year:hover .AD,
 .jpDatePicker .years .year:hover .gengo,
 .jpDatePicker .years .year:hover .genyear { color:#fff; }
-.jpDatePicker .years .year:active { background:#59c; color:#fff; }
+.jpDatePicker .years .year:active,
+.jpDatePicker .years .year.active { background:#59c; color:#fff; }
 .jpDatePicker .years .year:active .AD,
 .jpDatePicker .years .year:active .gengo,
-.jpDatePicker .years .year:active .genyear { color:#fff; }
+.jpDatePicker .years .year:active .genyear,
+.jpDatePicker .years .year.active .AD,
+.jpDatePicker .years .year.active .gengo,
+.jpDatePicker .years .year.active .genyear { color:#fff; }

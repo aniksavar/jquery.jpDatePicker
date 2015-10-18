@@ -165,9 +165,10 @@
 						return false; // テキスト選択キャンセル
 					});
 
-				// TODO:スマホだと<input>にフォーカスしたらキーボードが出てきて画面が小さくなり
-				// そのタイミングでカレンダーが消えてしまう。resizeで消さずに移動で済ますよう修正。
-				//$(window).on('resize.'+ plugName ,function(){ destroy.call( my ); });
+				// css:activeがタッチ端末用でイマイチ反応しないのでクラス付け外し
+				my.$picker.on('touchstart','a,div,span,td,th',function(){
+					$(this).one('touchend',function(){ $(this).removeClass('active'); }).addClass('active');
+				})
 			},0);
 		};
 
@@ -178,7 +179,6 @@
 			this.$picker.remove();
 			this.$picker = this.$month1 = this.$year1 = null;
 			$(document).off('click.'+ plugName).off('selectstart.'+ plugName);
-			$(window).off('resize.'+ plugName);
 		};
 
 		var month1 = {};
