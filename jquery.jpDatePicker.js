@@ -115,13 +115,14 @@
 				my.height = 280;
 				var left = pos.left;
 				var top = pos.top + $(target).outerHeight();
-				break;
+			break;
 			case 'sp':
 				my.width = Math.min( $(window).width() ,$(window).height() );
 				my.height = my.width;
 				var left = ($(window).width() - my.width) / 2;
 				var top = ($(window).height() - my.height) / 2;
-				break;
+				if( top <0 ) top = 0;
+			break;
 			}
 
 			var $prev = $('<a class=prev></a>').click(function(){ prev.call(my); });
