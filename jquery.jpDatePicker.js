@@ -143,32 +143,29 @@
 				prev = month1.prev;
 				next = month1.next;
 
-				$(document)
-					.on('click.'+ plugName ,function(ev){
-						// ピッカー範囲外クリックで消す
-						var off = my.$picker.offset();
-						off.right = off.left + my.$picker.outerWidth();
-						off.bottom = off.top + my.$picker.outerHeight();
-						if( ev.pageX < off.left || off.right < ev.pageX ||
-							ev.pageY < off.top || off.bottom < ev.pageY
-						){
-							destroy.call( my );
-						}
-					})
-					.on('click.'+ plugName ,'.'+ plugName +' .month1 .title .year',function(ev){
-						years.call(my);
-					})
-					.on('click.'+ plugName ,'.'+ plugName +' .month1 .title .month',function(ev){
-						year1.show.call(my);
-					})
-					.on('selectstart.'+ plugName ,'.'+ plugName ,function(ev){
-						return false; // テキスト選択キャンセル
-					});
+				$(document).on('mousedown.'+ plugName ,function(ev){
+					// ピッカー範囲外クリックで消す
+					var off = my.$picker.offset();
+					off.right = off.left + my.$picker.outerWidth();
+					off.bottom = off.top + my.$picker.outerHeight();
+					if( ev.pageX < off.left || off.right < ev.pageX ||
+						ev.pageY < off.top || off.bottom < ev.pageY
+					){
+						destroy.call( my );
+					}
+				});
 
-				// css:activeがタッチ端末用でイマイチ反応しないのでクラス付け外し
-				my.$picker.on('touchstart','a,div,span,td,th',function(){
-					$(this).one('touchend',function(){ $(this).removeClass('active'); }).addClass('active');
-				})
+				my.$picker
+					.on('click','.month1 .title .year',function(){ years.call(my); })
+					.on('click','.month1 .title .month',function(){ year1.show.call(my); })
+					// テキスト選択キャンセル
+					.on('selectstart.'+ plugName ,'.'+ plugName ,function(){ return false; })
+					// css:activeがスマホで反応しないのでクラス付け外し
+					.on('touchstart','a, div.year, td',function(){
+						$(this).addClass('active').one('touchend touchmove',function(){
+							$(this).removeClass('active').off('touchend touchmove');
+						});
+					});
 			},0);
 		};
 
@@ -178,7 +175,7 @@
 		var destroy = function(){
 			this.$picker.remove();
 			this.$picker = this.$month1 = this.$year1 = null;
-			$(document).off('click.'+ plugName).off('selectstart.'+ plugName);
+			$(document).off('mousedown.'+ plugName).off('selectstart.'+ plugName);
 		};
 
 		var month1 = {};
