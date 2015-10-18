@@ -159,7 +159,7 @@
 					.on('click','.month1 .title .year',function(){ years.call(my); })
 					.on('click','.month1 .title .month',function(){ year1.show.call(my); })
 					// テキスト選択キャンセル
-					.on('selectstart.'+ plugName ,'.'+ plugName ,function(){ return false; })
+					.on('selectstart',function(){ return false; })
 					// css:activeがスマホで反応しないのでクラス付け外し
 					.on('touchstart','a, div.year, td',function(){
 						$(this).addClass('active').one('touchend touchmove',function(){
@@ -175,7 +175,7 @@
 		var destroy = function(){
 			this.$picker.remove();
 			this.$picker = this.$month1 = this.$year1 = null;
-			$(document).off('mousedown.'+ plugName).off('selectstart.'+ plugName);
+			$(document).off('mousedown.'+ plugName);
 		};
 
 		var month1 = {};
