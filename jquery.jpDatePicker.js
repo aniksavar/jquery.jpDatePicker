@@ -119,8 +119,8 @@
 			case 'sp':
 				my.width = Math.min( $(window).width() ,$(window).height() );
 				my.height = my.width;
-				var left = ($(window).width() - my.width) / 2;
-				var top = ($(window).height() - my.height) / 2;
+				var left = $(window).scrollLeft() + ($(window).width() - my.width) / 2;
+				var top = $(window).scrollTop() + ($(window).height() - my.height) / 2;
 				if( top <0 ) top = 0;
 			break;
 			}
